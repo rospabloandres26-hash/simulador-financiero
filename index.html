@@ -1141,5 +1141,293 @@ document.getElementById('nw-monto').addEventListener('input',updateCuotaPreview)
 document.getElementById('nw-cuotas').addEventListener('change',updateCuotaPreview);
 syncBudget();
 </script>
+
+<!-- ═══════════════════════════════════════════
+     BOTÓN FLOTANTE + MODAL PROMOCIONES
+════════════════════════════════════════════ -->
+<style>
+.promo-fab{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:linear-gradient(135deg,#16A34A,#15803D);
+  color:#fff;border:none;border-radius:50px;
+  padding:13px 20px;font-size:14px;font-weight:700;
+  cursor:pointer;box-shadow:0 4px 18px rgba(22,163,74,.45);
+  display:flex;align-items:center;gap:8px;
+  transition:transform .15s,box-shadow .15s;
+  font-family:'Inter',sans-serif;
+}
+.promo-fab:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(22,163,74,.55)}
+
+.promo-overlay{
+  display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
+  align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;
+}
+.promo-overlay.open{display:flex}
+
+.promo-modal{
+  background:#fff;border-radius:20px;max-width:860px;width:100%;
+  box-shadow:0 24px 80px rgba(0,0,0,.25);overflow:hidden;
+  margin:auto;
+}
+.promo-modal-head{
+  background:linear-gradient(135deg,#14532D,#16A34A);
+  padding:1.5rem 2rem;color:#fff;
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.promo-modal-head h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.promo-modal-head p{font-size:13px;opacity:.8}
+.promo-close{background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.promo-close:hover{background:rgba(255,255,255,.35)}
+
+.promo-body{padding:1.5rem 2rem}
+
+.promo-search-bar{
+  display:flex;gap:8px;margin-bottom:1.5rem;
+}
+.promo-search-bar a{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--blue);color:#fff;text-decoration:none;
+  border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;
+  transition:filter .15s;
+}
+.promo-search-bar a:hover{filter:brightness(1.1)}
+.promo-search-bar a.green{background:var(--green)}
+.promo-search-bar a.amber{background:var(--amber)}
+
+.promo-section-title{
+  font-size:12px;font-weight:700;color:var(--gray-500);
+  text-transform:uppercase;letter-spacing:.06em;
+  margin:1.25rem 0 .6rem;padding-bottom:.4rem;
+  border-bottom:1px solid var(--gray-200);
+}
+
+.promo-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:.5rem}
+.promo-table th{
+  background:var(--gray-50);color:var(--gray-600);
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:8px 10px;text-align:left;border-bottom:1px solid var(--gray-200);
+}
+.promo-table td{padding:9px 10px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+.promo-table tr:last-child td{border-bottom:none}
+.promo-table tr:hover td{background:var(--gray-50)}
+.promo-badge{
+  display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;
+  border-radius:10px;white-space:nowrap;
+}
+.badge-green{background:var(--green-light);color:#14532D}
+.badge-amber{background:var(--amber-light);color:#78350F}
+.badge-blue{background:var(--blue-light);color:#1E3A8A}
+.badge-red{background:var(--red-light);color:#7F1D1D}
+.badge-purple{background:var(--purple-light);color:var(--purple-dark)}
+
+.promo-day-pill{
+  display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;
+  background:var(--purple-light);color:var(--purple-dark);
+}
+.promo-disclaimer{
+  background:var(--amber-light);color:#78350F;
+  border-radius:10px;padding:.75rem 1rem;font-size:12px;
+  display:flex;gap:8px;align-items:flex-start;margin-top:1.25rem;
+}
+</style>
+
+<!-- Botón flotante -->
+<button class="promo-fab" onclick="document.getElementById('promo-overlay').classList.add('open')">
+  🏷️ Promociones del mes
+</button>
+
+<!-- Modal -->
+<div class="promo-overlay" id="promo-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="promo-modal">
+    <div class="promo-modal-head">
+      <div>
+        <h2>🏷️ Promociones en supermercados — Argentina</h2>
+        <p>Descuentos con tarjetas bancarias · Actualizado junio 2026</p>
+      </div>
+      <button class="promo-close" onclick="document.getElementById('promo-overlay').classList.remove('open')">✕</button>
+    </div>
+
+    <div class="promo-body">
+
+      <!-- Buscadores rápidos -->
+      <div class="promo-search-bar">
+        <a href="https://www.google.com/search?q=promociones+supermercados+tarjetas+bancarias+argentina+junio+2026" target="_blank" class="green">
+          🔍 Buscar promociones actualizadas
+        </a>
+        <a href="https://www.google.com/search?q=descuentos+supermercados+hoy+argentina" target="_blank">
+          📅 Descuentos de hoy
+        </a>
+        <a href="https://www.masonline.com.ar/promociones-bancarias" target="_blank" class="amber">
+          🌐 Más Online — banco por banco
+        </a>
+      </div>
+
+      <!-- Tabla por banco -->
+      <div class="promo-section-title">📋 Descuentos por banco · día · supermercado</div>
+      <table class="promo-table">
+        <thead>
+          <tr>
+            <th>Banco / Tarjeta</th>
+            <th>Día</th>
+            <th>Supermercado</th>
+            <th>Descuento</th>
+            <th>Tope</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>🏦 Banco Nación</strong><br><span style="font-size:11px;color:var(--gray-400)">Visa / Mastercard via MODO BNA+</span></td>
+            <td><span class="promo-day-pill">Miércoles</span></td>
+            <td>ChangoMás · Coto · Carrefour · Jumbo · Disco · Vea · Día</td>
+            <td><span class="promo-badge badge-green">30–35%</span></td>
+            <td>$12.000/semana</td>
+          </tr>
+          <tr>
+            <td><strong>🏦 Banco Nación</strong><br><span style="font-size:11px;color:var(--gray-400)">Mayoristas</span></td>
+            <td><span class="promo-day-pill">Miércoles</span></td>
+            <td>Diarco · Maxiconsumo · Makro</td>
+            <td><span class="promo-badge badge-green">20–30%</span></td>
+            <td>$12.000/semana</td>
+          </tr>
+          <tr>
+            <td><strong>🏦 Banco Macro</strong></td>
+            <td><span class="promo-day-pill">Jueves</span></td>
+            <td>Makro</td>
+            <td><span class="promo-badge badge-blue">20%</span></td>
+            <td>$20.000</td>
+          </tr>
+          <tr>
+            <td><strong>🏦 Banco Macro</strong></td>
+            <td><span class="promo-day-pill">Martes · Jueves</span></td>
+            <td>Jumbo</td>
+            <td><span class="promo-badge badge-blue">20%</span></td>
+            <td>$25.000</td>
+          </tr>
+          <tr>
+            <td><strong>🏦 Banco Macro</strong></td>
+            <td><span class="promo-day-pill">Vie · Sáb · Dom</span></td>
+            <td>Disco · Vea</td>
+            <td><span class="promo-badge badge-blue">20%</span></td>
+            <td>$25.000</td>
+          </tr>
+          <tr>
+            <td><strong>🏦 Banco Credicoop</strong></td>
+            <td><span class="promo-day-pill">Lunes</span></td>
+            <td>Coto</td>
+            <td><span class="promo-badge badge-green">30%</span></td>
+            <td>$15.000/semana</td>
+          </tr>
+          <tr>
+            <td><strong>🏦 Banco Supervielle</strong><br><span style="font-size:11px;color:var(--gray-400)">Tarjeta Platinum</span></td>
+            <td><span class="promo-day-pill">Martes</span></td>
+            <td>Coto</td>
+            <td><span class="promo-badge badge-green">30% sin tope</span></td>
+            <td>Sin tope</td>
+          </tr>
+          <tr>
+            <td><strong>🏦 Banco Supervielle</strong><br><span style="font-size:11px;color:var(--gray-400)">Jubilados</span></td>
+            <td><span class="promo-day-pill">Martes</span></td>
+            <td>Vea · Jumbo · Disco</td>
+            <td><span class="promo-badge badge-amber">25%</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>🏦 Banco Patagonia</strong></td>
+            <td><span class="promo-day-pill">Miércoles</span></td>
+            <td>Carrefour</td>
+            <td><span class="promo-badge badge-green">35%</span></td>
+            <td>$20.000</td>
+          </tr>
+          <tr>
+            <td><strong>📱 Naranja X</strong></td>
+            <td><span class="promo-day-pill">Martes</span></td>
+            <td>Coto · Carrefour</td>
+            <td><span class="promo-badge badge-purple">25%</span></td>
+            <td>$12.000/semana</td>
+          </tr>
+          <tr>
+            <td><strong>📱 Naranja X</strong></td>
+            <td><span class="promo-day-pill">Todos los días</span></td>
+            <td>Vea · Jumbo · Disco</td>
+            <td><span class="promo-badge badge-blue">12 cuotas s/i</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>📱 Cuenta DNI (Prov. Buenos Aires)</strong></td>
+            <td><span class="promo-day-pill">Martes</span></td>
+            <td>Coto</td>
+            <td><span class="promo-badge badge-purple">15–20%</span></td>
+            <td>$20.000/día</td>
+          </tr>
+          <tr>
+            <td><strong>📱 Cuenta DNI</strong></td>
+            <td><span class="promo-day-pill">Miércoles</span></td>
+            <td>Carrefour · ChangoMás · Día</td>
+            <td><span class="promo-badge badge-purple">15–20%</span></td>
+            <td>$20.000/día</td>
+          </tr>
+          <tr>
+            <td><strong>📱 Mercado Pago</strong></td>
+            <td><span class="promo-day-pill">Todos los días</span></td>
+            <td>Coto</td>
+            <td><span class="promo-badge badge-blue">3 cuotas s/i</span></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Resumen por día -->
+      <div class="promo-section-title">📅 ¿Qué día conviene ir al súper?</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:1rem">
+        <div style="background:var(--gray-50);border-radius:8px;padding:8px 6px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:4px">LUN</div>
+          <div style="font-size:11px;color:var(--gray-700)">Credicoop<br>30% Coto</div>
+        </div>
+        <div style="background:#EDE9FE;border-radius:8px;padding:8px 6px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--purple-dark);margin-bottom:4px">MAR</div>
+          <div style="font-size:11px;color:var(--purple-dark)">Supervielle<br>Naranja X<br>Cuenta DNI</div>
+        </div>
+        <div style="background:#DCFCE7;border-radius:8px;padding:8px 6px;text-align:center;border:2px solid var(--green)">
+          <div style="font-size:11px;font-weight:700;color:#14532D;margin-bottom:4px">MIÉ ⭐</div>
+          <div style="font-size:11px;color:#14532D"><strong>Banco Nación</strong><br>30–35%<br>Patagonia 35%</div>
+        </div>
+        <div style="background:var(--blue-light);border-radius:8px;padding:8px 6px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:#1E3A8A;margin-bottom:4px">JUE</div>
+          <div style="font-size:11px;color:#1E3A8A">Macro<br>20% Makro<br>20% Jumbo</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:8px 6px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:4px">VIE</div>
+          <div style="font-size:11px;color:var(--gray-700)">Macro<br>20% Disco/Vea</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:8px 6px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:4px">SÁB</div>
+          <div style="font-size:11px;color:var(--gray-700)">Macro<br>20% Disco/Vea</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:8px 6px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:4px">DOM</div>
+          <div style="font-size:11px;color:var(--gray-700)">Macro<br>20% Disco/Vea</div>
+        </div>
+      </div>
+
+      <!-- Links directos -->
+      <div class="promo-section-title">🔗 Consultar promociones oficiales</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem">
+        <a href="https://www.bna.com.ar/Personas" target="_blank" style="background:var(--gray-100);color:var(--gray-700);text-decoration:none;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600">🏦 Banco Nación</a>
+        <a href="https://www.macro.com.ar/beneficios" target="_blank" style="background:var(--gray-100);color:var(--gray-700);text-decoration:none;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600">🏦 Banco Macro</a>
+        <a href="https://www.supervielle.com.ar/beneficios" target="_blank" style="background:var(--gray-100);color:var(--gray-700);text-decoration:none;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600">🏦 Supervielle</a>
+        <a href="https://www.naranjax.com/beneficios" target="_blank" style="background:var(--gray-100);color:var(--gray-700);text-decoration:none;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600">📱 Naranja X</a>
+        <a href="https://www.masonline.com.ar/promociones-bancarias" target="_blank" style="background:var(--green-light);color:#14532D;text-decoration:none;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600">📋 Todas las promos</a>
+      </div>
+
+      <div class="promo-disclaimer">
+        <span style="font-size:18px;flex-shrink:0">⚠️</span>
+        <span>Las promociones cambian cada mes. Verificá siempre en el sitio oficial de tu banco antes de ir al súper. Esta tabla fue relevada en junio 2026.</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
