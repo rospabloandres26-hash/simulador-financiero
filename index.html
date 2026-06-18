@@ -371,6 +371,26 @@ select:focus{border-color:var(--purple)}
               </div>
             </div>
 
+            <div class="rate-option" onclick="setRate(5)" data-idx="5">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <h4>📉 Balanz Inflation Linked (CER)</h4><p>Ajusta por inflación — rendimiento real positivo en pesos</p>
+                  <div style="margin-top:4px;display:inline-block;background:#DCFCE7;color:#14532D;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">COBERTURA INFLACIÓN</div>
+                </div>
+                <div style="text-align:right"><div class="rate-pct" style="color:var(--green)">3,21%</div><div class="rate-tna">Var. mensual jun.2026</div></div>
+              </div>
+            </div>
+
+            <div class="rate-option" onclick="setRate(6)" data-idx="6">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <h4>💵 Balanz Dólar Linked</h4><p>Ajusta al dólar oficial — cobertura cambiaria en pesos</p>
+                  <div style="margin-top:4px;display:inline-block;background:#DBEAFE;color:#1E3A5F;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">COBERTURA CAMBIARIA</div>
+                </div>
+                <div style="text-align:right"><div class="rate-pct" style="color:var(--blue)">3,09%</div><div class="rate-tna">Var. mensual jun.2026</div></div>
+              </div>
+            </div>
+
           </div>
           <div id="rate-alert" class="alert-box alert-info" style="margin-top:.75rem;margin-bottom:0">
             <span class="icon">💡</span>
@@ -535,6 +555,7 @@ select:focus{border-color:var(--purple)}
         <div class="action-bar" style="padding:.5rem 0">
           <button class="btn btn-primary btn-lg" id="btn-next" onclick="nextMonth()">Avanzar al mes siguiente →</button>
           <button class="btn" id="btn-extra" onclick="toggleExtra()">💵 Agregar dinero extra</button>
+          <button class="btn" style="background:var(--red-light);color:var(--red);border-color:var(--red-light)" onclick="confirmReset()">🔄 Reiniciar simulación</button>
           <span id="sim-tip" style="font-size:12px;color:var(--gray-400);flex:1"></span>
         </div>
       </div>
@@ -609,6 +630,8 @@ const RATES = [
   {label:'Ualá cuenta remunerada', pct:2.167, tna:26, msg:'2,17% mensual (TNA 26%) — la mejor tasa entre las billeteras con liquidez inmediata. Junio 2026.', color:'var(--green)', alertClass:'alert-ok'},
   {label:'Balanz Money Market', pct:1.402, tna:16.82, msg:'1,40% mensual (TNA 16,82%) — FCI clásico de pesos con liquidez inmediata (T+0). Tasa verificada Balanz junio 2026.', color:'var(--purple)', alertClass:'alert-info'},
   {label:'Balanz Long Pesos', pct:2.5, tna:30, msg:'~2,50% mensual (TNA ~30% est.) — mayor duración = mayor rendimiento, con algo más de volatilidad. Ideal para el 20% de largo plazo.', color:'var(--purple-dark)', alertClass:'alert-info'},
+  {label:'Balanz Inflation Linked (CER)', pct:3.21, tna:null, msg:'3,21% variación mensual (junio 2026) — ajusta por inflación (CER). Protege el poder adquisitivo de tu ahorro con retorno real positivo.', color:'var(--green)', alertClass:'alert-ok'},
+  {label:'Balanz Dólar Linked', pct:3.09, tna:null, msg:'3,09% variación mensual (junio 2026) — ajusta al dólar oficial. Cobertura cambiaria en pesos, ideal si temés una devaluación.', color:'var(--blue)', alertClass:'alert-info'},
 ];
 
 let budgetAmount = 1500000;
@@ -1104,6 +1127,13 @@ function resetAll(){
   goScreen('welcome');
   if(chartSim){chartSim.destroy();chartSim=null;}
   EVENTS.forEach(e=>delete e.resolved);
+  decisionLog=[];extraApplied=0;totalCuotasPaid=0;
+}
+
+function confirmReset(){
+  if(confirm('¿Reiniciar la simulación desde el principio? Perderás el progreso del año actual.')){
+    resetAll();
+  }
 }
 
 /* ── INIT ── */
